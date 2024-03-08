@@ -1,6 +1,6 @@
 import streamlit as st
 import matplotlib.pyplot as plt
-
+st.set_page_config(layout="wide")
 # Create your title, header, and subheader
 st.sidebar.success("Select a demo above.")
 st.title("Playground")
