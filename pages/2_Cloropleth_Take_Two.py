@@ -5,21 +5,24 @@ import geopandas as gpd
 import psycopg2
 
 import plotly.express as px
+conn = st.connection("postgresql", type="sql")
 
-st.set_page_config(layout="wide")
+# Perform query.
+df = conn.query('SELECT * FROM credentials;', ttl="10m")
 
 st.title("Test Choropleth")
 st.header("First Try at creating a cloropleth map in plotly and streamlit")
 
-connection = psycopg2.connect(database = st.session_state.database,
-                              user = st.session_state.user,
-                              host = 'capstone.c94ookq24fln.us-east-2.rds.amazonaws.com',
-                              password = st.session_state['database_password'])
+connection = psycopg2.connect(database = 'dentdb',
+                              user = df.iloc[0][3],
+                              host = df.iloc[0][1],
+                              password = df.iloc[0][4])
 
 
 SQL = "SELECT * FROM mo_counties;"
 
 mo_counties = gpd.read_postgis(SQL,connection)
+
 fig = px.choropleth(mo_counties,
                    geojson=mo_counties.geom,
                    locations=mo_counties.index,
