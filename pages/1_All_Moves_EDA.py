@@ -1,7 +1,7 @@
 import streamlit as st
 
 import plotly.express as px
-
+st.set_page_config(layout="wide")
 conn = st.connection("postgresql", type="sql")
 
 # Perform query.
@@ -27,29 +27,6 @@ def filter_df(dataframe, year_vals, provider_types, type_moves, dist_vals):
     return dataframe
 
 
-with st.form(key='barchart_params'):
-    st.session_state.p_type = st.multiselect('Provider Type',
-                                             df.lic_type.unique(), st.session_state.p_type)
-    st.session_state.year_move = st.multiselect('Year Move', df.year_move.unique(), st.session_state.year_move)
-    st.session_state.type_moves = st.multiselect('Type of Move', df.type_moves.unique(), st.session_state.type_moves)
-    st.session_state.dist_vals = st.slider(
-        'What distances of Moves do you want to see data on?',
-        0.0, float(df.distance_m.max()), (0.0, float(df.distance_m.max())))
-
-    st.form_submit_button(label='Update Dataframe')
-
-filtered_df = filter_df(df, st.session_state.year_move,
-                        st.session_state.p_type, st.session_state.type_moves,
-                        st.session_state.dist_vals)
-
-st.write(len(filtered_df))
-
-plot_options = ["Histogram", "Boxplot"]
-continuous_cols = ["distance_m"]
-other_cols = ['lic_type', 'year_move', 'type_moves', 'move_numbe']
-tab2, tab3 = st.tabs(plot_options)
-
-
 def histplot(df):
     hist_col = st.selectbox("Select x-axis data", options=other_cols, key=8)
     if hist_col in continuous_cols:
@@ -59,7 +36,7 @@ def histplot(df):
     st.markdown("Some text about the selection above.")
 
     plot = px.histogram(df, x=hist_col, nbins=nbins)
-    st.plotly_chart(plot, use_container_width=True)
+    st.plotly_chart(plot)
 
 
 def boxplot(df):
@@ -68,11 +45,39 @@ def boxplot(df):
     st.markdown("Click on the legend to (add/remove makes)")
 
     plot = px.box(df, x=x_axis_label, y='distance_m')
-    st.plotly_chart(plot, use_container_width=True)
+    st.plotly_chart(plot)
+
+plot_options = ["Histogram", "Boxplot"]
+continuous_cols = ["distance_m"]
+other_cols = ['lic_type', 'year_move', 'type_moves', 'move_numbe']
+tab2, tab3 = st.tabs(plot_options)
 
 
-with tab2:
-    histplot(filtered_df)
+with st.container():
+    with st.expander('Filtering Options'):
+        with st.form(key='barchart_params'):
+            st.session_state.p_type = st.multiselect('Provider Type',
+                                                     df.lic_type.unique(), st.session_state.p_type)
+            st.session_state.year_move = st.multiselect('Year Move', df.year_move.unique(), st.session_state.year_move)
+            st.session_state.type_moves = st.multiselect('Type of Move', df.type_moves.unique(), st.session_state.type_moves)
+            st.session_state.dist_vals = st.slider(
+                'What distances of Moves do you want to see data on?',
+                0.0, float(df.distance_m.max()), (0.0, float(df.distance_m.max())))
 
-with tab3:
-    boxplot(filtered_df)
+            st.form_submit_button(label='Update Dataframe')
+
+        filtered_df = filter_df(df, st.session_state.year_move,
+                                st.session_state.p_type, st.session_state.type_moves,
+                                st.session_state.dist_vals)
+
+        st.write(len(filtered_df))
+
+with st.container():
+    with tab2:
+        histplot(filtered_df)
+
+    with tab3:
+        boxplot(filtered_df)
+
+
+
