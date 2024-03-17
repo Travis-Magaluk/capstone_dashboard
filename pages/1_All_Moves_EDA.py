@@ -23,6 +23,7 @@ def filter_df(dataframe, year_vals, provider_types, type_moves, dist_vals):
     dataframe = dataframe[dataframe['lic_type'].isin(provider_types)]
     dataframe = dataframe[dataframe['type_moves'].isin(type_moves)]
     dataframe = dataframe[dataframe['distance_m'] < st.session_state.dist_vals[1]]
+    dataframe = dataframe[dataframe['distance_m'] > st.session_state.dist_vals[0]]
     return dataframe
 
 
@@ -32,8 +33,9 @@ with st.form(key='barchart_params'):
     st.session_state.year_move = st.multiselect('Year Move', df.year_move.unique(), st.session_state.year_move)
     st.session_state.type_moves = st.multiselect('Type of Move', df.type_moves.unique(), st.session_state.type_moves)
     st.session_state.dist_vals = st.slider(
-        'Select a range of values',
-        0.0, 100.0, (25.0, 75.0))
+        'What distances of Moves do you want to see data on?',
+        0.0, float(df.distance_m.max()), (0.0, float(df.distance_m.max())))
+
     st.form_submit_button(label='Update Dataframe')
 
 filtered_df = filter_df(df, st.session_state.year_move,
@@ -54,7 +56,7 @@ def histplot(df):
         nbins = st.slider("nbins", min_value=5, max_value=30)
     else:
         nbins = None
-    st.markdown("Click on the legend to (add/remove makes)")
+    st.markdown("Some text about the selection above.")
 
     plot = px.histogram(df, x=hist_col, nbins=nbins)
     st.plotly_chart(plot, use_container_width=True)
