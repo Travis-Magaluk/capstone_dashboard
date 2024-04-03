@@ -1,47 +1,71 @@
 import streamlit as st
 import pandas as pd
-import sqlalchemy
+import os
 import geopandas as gpd
-import psycopg2
-
 import plotly.express as px
-conn = st.connection("postgresql", type="sql")
+import matplotlib.pyplot as plt
 
-# Perform query.
-df = conn.query('SELECT * FROM credentials;', ttl="10m")
+st.set_page_config(layout="wide")
 
-st.title("Missouri Census Tract Features")
-st.header("This map will display various features for census tracts across the state of Missouri for the year 2022")
+@st.cache_data
+def read_file(filepath):
+    df = gpd.read_file(filepath, encoding='utf-8')
+    return df
+def clean_providers(df):
+    cols_keep = ['id', 'ba_city', 'ba_state', 'ba_cnty', 'lic_profes', 'lic_number',
+                 'lic_exp_da', 'rural_hubd', 'hubdist', 'geometry']
+    f_df = df.filter(items=cols_keep, axis=1)
+    map_rename = {'id': 'id', 'ba_city': 'City', 'ba_state': 'State', 'ba_cnty': 'County',
+                  'lic_profes': "Licence Type", 'lic_number': 'Licence Number',
+                 'lic_exp_da':'exp_date', 'rural_hubd': "Distance to Nearest Rural Hub",
+                  'hubdist': 'Distance to Nearest HPSA Facility', 'geometry': 'geometry'}
 
-connection = psycopg2.connect(database = 'dentdb',
-                              user = df.username[0],
-                              host = df.host[0],
-                              password = df.password[0])
+    f_df.rename(mapper = map_rename,inplace=True, axis=1)
+    f_df['exp_date'] = pd.to_datetime(f_df['exp_date'])
+    f_df['Year'] = pd.DatetimeIndex(f_df['exp_date']).year.astype(str)
+    return f_df
+
+def filter_df_selections(dataframe, filter_map):
+    for key in filter_map:
+        dataframe = dataframe[dataframe[key].isin(filter_map[key])]
+    return dataframe
+
+providers = read_file('data/all_providers/all_providers.shp')
+tracts = read_file('data/tracts/tracts.shp')
+hpsa = read_file('data/hpsa_facility/hpsa_facilities.shp')
+rural_tract_cen = read_file('data/rural_tract_pts/rural_tract_pts.shp')
+
+cleaned_providers = clean_providers(providers)
 
 
-SQL = "SELECT * FROM spat_autocorr_layer_3;"
+if 'p_type' not in st.session_state:
+    st.session_state['p_type'] = cleaned_providers['Licence Type'].unique()
+    st.session_state.year = cleaned_providers.Year.unique()
+
+with st.container():
+    col1, col2 = st.columns(spec=[0.3, 0.7])
+
+    with col1:
+       with st.form(key='map_params'):
+        st.session_state.p_type = st.multiselect('Provider Type',
+                                                 cleaned_providers['Licence Type'].unique(), st.session_state.p_type)
+        st.session_state.year = st.multiselect('Year', cleaned_providers.Year.unique(), st.session_state.year)
+        st.form_submit_button(label='Update Dataframe')
+
+    filter_map = {'Licence Type': st.session_state['p_type'],
+                      "Year": st.session_state['year']}
+    filtered_providers = filter_df_selections(cleaned_providers, filter_map)
 
 
-mo_counties = gpd.read_postgis(SQL,connection)
 
-with st.form(key='cloropleth_filter'):
-    col_selection = st.radio('Fill Values',
-                             options=['tot_pop', 'pop_ins', 'pop_unis', 'pct_unins',
-                                      'dent_4k', 'need2022', 'need2030'])
+    with col2:
+        fig, ax = plt.subplots(figsize=(10, 8))
+        tracts.plot(ax=ax, legend=True)
+        filtered_providers.plot(ax=ax, color='red', markersize=3, label='Dental Providers', alpha=1)
+        hpsa.plot(ax=ax, color='black', markersize=5)
+        rural_tract_cen.plot(ax=ax, color='pink', markersize=10)
+        ax.set_title('Census Tract Provider Counts')
+        st.pyplot(fig)
 
-    st.form_submit_button(label='Update Dataframe')
 
-fig = px.choropleth(mo_counties,
-                   geojson=mo_counties.geom,
-                   locations=mo_counties.index,
-                   projection="mercator",
-                    color=col_selection,
-                    labels={col_selection:col_selection},
-                    title=f'{str.capitalize(col_selection)} by Census Tracts for Year of 2022')
-fig.update_layout(
-    autosize=False,
-    width=800,
-    height=800,
-)
-fig.update_geos(fitbounds="locations", visible=False)
-st.plotly_chart(fig, use_container_width=True)
+
