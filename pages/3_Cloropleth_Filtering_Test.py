@@ -11,7 +11,7 @@ conn = st.connection("postgresql", type="sql")
 df = conn.query('SELECT * FROM credentials;', ttl="10m")
 
 st.title("Missouri Census Tract Features")
-st.header("This map will display various features for census tracts across the state of Missouri for the year XXXX")
+st.header("This map will display various features for census tracts across the state of Missouri for the year 2022")
 
 connection = psycopg2.connect(database = 'dentdb',
                               user = df.username[0],
@@ -37,7 +37,7 @@ fig = px.choropleth(mo_counties,
                    projection="mercator",
                     color=col_selection,
                     labels={col_selection:col_selection},
-                    title=f'{str.capitalize(col_selection)} by Census Tracts for Year of XXXX')
+                    title=f'{str.capitalize(col_selection)} by Census Tracts for Year of 2022')
 fig.update_layout(
     autosize=False,
     width=800,
