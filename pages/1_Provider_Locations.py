@@ -2,10 +2,8 @@ import streamlit as st
 import pandas as pd
 import os
 import geopandas as gpd
-import plotly.express as px
 import matplotlib.pyplot as plt
-import seaborn as sns
-from scipy.stats import gaussian_kde
+import scipy.stats as stats
 import numpy as np
 st.set_page_config(layout="wide")
 
@@ -83,6 +81,31 @@ def create_provider_stats(df):
     return grouped_df
 
 
+def get_arrays(df, col_to_split, keep_col):
+    unique_values = df[col_to_split].unique()
+    arrays = {}
+
+    for value in unique_values:
+        arrays[value.lower()] = df[df[col_to_split] == value][keep_col].values
+
+    return arrays
+
+def run_ranksums_statistics(dist1, dist2):
+    stats_dict = {}
+    statistic, p_value = stats.ranksums(dist1, dist2)
+    stats_dict['Statistic'] = statistic
+    stats_dict['p_value'] = p_value
+
+    # Interpret the results
+    if p_value < 0.05:
+        stats_dict[
+            'Message'] = "Reject the null hypothesis: There is a significant difference between the distributions."
+    else:
+        stats_dict[
+            'Message'] = "Fail to reject the null hypothesis: There is no significant difference between the distributions."
+    return stats_dict
+
+
 providers = read_file('data/all_providers/all_providers.shp')
 tracts = read_file('data/tracts/tracts.shp')
 hpsa = read_file('data/hpsa_facility/hpsa_facilities.shp')
@@ -119,8 +142,8 @@ with st.container():
         pd.set_option('display.max_colwidth', 40)  # Set maximum column width
         # pd.set_option('display.header_wrap', True)  # Allow header text to wrap
         filtered_providers = filter_df_selections(cleaned_providers, filter_map)
-        stats = create_provider_stats(filtered_providers)
-        st.dataframe(stats)
+        prov_stats = create_provider_stats(filtered_providers)
+        st.dataframe(prov_stats.transpose())
 
 
     with col2:
@@ -129,7 +152,7 @@ with st.container():
         for license_type, color in zip(['DEN', 'DHY'], ['red', 'blue']):  # Specify your license types here
             subset = filtered_providers[filtered_providers['Licence Type'] == license_type]
             if not subset.empty:
-                subset.plot(ax=ax, color=color, markersize=3, label=license_type, alpha=1)
+                subset.plot(ax=ax, color=color, markersize=3, label=license_type, alpha=0.4)
         # Plot HPSA facilities if checked
         if hpsa_check:
             hpsa.plot(ax=ax, color='green', markersize=5)
@@ -144,7 +167,18 @@ with st.container():
     with col1:
         fig1 = create_density_plt(filtered_providers, 'Licence Type', 'Distance to Nearest Rural Hub', fill_alpha=0.3)
         st.pyplot(fig1)
+        try:
+            array_dict = get_arrays(filtered_providers, 'Licence Type', 'Distance to Nearest Rural Hub')
+            keys = list(array_dict.keys())[:2]
+            stats_dict_1 = run_ranksums_statistics(array_dict[keys[0]], array_dict[keys[1]])
+            st.write(stats_dict_1)
+        except IndexError:
+            pass
     with col2:
         fig2 = create_density_plt(filtered_providers, 'Licence Type', 'Distance to Nearest HPSA Facility', fill_alpha=0.3)
         st.pyplot(fig2)
+        array_dict = get_arrays(filtered_providers, 'Licence Type', 'Distance to Nearest HPSA Facility')
+        keys = list(array_dict.keys())[:2]
+        stats_dict_2 = run_ranksums_statistics(array_dict[keys[0]], array_dict[keys[1]])
+        st.write(stats_dict_2)
 
