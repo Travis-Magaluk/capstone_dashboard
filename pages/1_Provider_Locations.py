@@ -5,7 +5,9 @@ import geopandas as gpd
 import matplotlib.pyplot as plt
 import scipy.stats as stats
 import numpy as np
+from scipy.stats import gaussian_kde
 st.set_page_config(layout="wide")
+from matplotlib.lines import Line2D
 
 
 @st.cache_data
@@ -24,6 +26,7 @@ def clean_providers(df):
                   'hubdist': 'Distance to Nearest HPSA Facility', 'geometry': 'geometry'}
 
     f_df.rename(mapper=map_rename, inplace=True, axis=1)
+    f_df['Licence Type'] = f_df['Licence Type'].replace({'DEN': 'Dentist', 'DHY': 'Hygienist'})
     f_df['exp_date'] = pd.to_datetime(f_df['exp_date'])
     f_df['Year'] = pd.DatetimeIndex(f_df['exp_date']).year.astype(str)
     return f_df
@@ -35,7 +38,6 @@ def filter_df_selections(dataframe, filter_map):
     return dataframe
 
 
-@st.cache_data
 def create_density_plt(_df, hue, x, fill_alpha=0.3):
     fig, ax = plt.subplots()
 
@@ -50,12 +52,13 @@ def create_density_plt(_df, hue, x, fill_alpha=0.3):
         subset = _df[_df[hue] == p]
         density = gaussian_kde(subset[x])
         xs = np.linspace(subset[x].min(), subset[x].max(), 100)
-        ax.plot(xs, density(xs), label=p)
-        ax.fill_between(xs, density(xs), alpha=fill_alpha)
+        color = 'blue' if p.startswith('Dentist') else 'orange'
+        ax.plot(xs, density(xs), color=color, label=p)
+        ax.fill_between(xs, density(xs), color=color, alpha=fill_alpha)
 
     # Add vertical lines for means
     for p, mean in means.items():
-        ax.axvline(x=mean, color='blue' if p.startswith('DEN') else 'orange', linestyle='--', label=p)
+        ax.axvline(x=mean, color='blue' if p.startswith('Dentist') else 'orange', linestyle='--', label=p)
 
     ax.legend()
     ax.set_xlabel(x)
@@ -119,10 +122,32 @@ if 'p_type' not in st.session_state:
 
 
 st.title("Provider Locations Across Missouri")
-st.header("Map showing provider locations in the state of missouri "
-          "Explore the data and see where providers are located. "
-          "Also see where Rural Areas are (100% rural population)."
-          "and see where Health Professional Shortage areas are located too.")
+
+with st.container():
+    col3, col4 = st.columns(spec=[0.5, 0.5])
+
+    with col3:
+        st.subheader('Navigating Provider Locations and Health Resources in Missouri')
+        st.write('''Explore the geographic distribution of dental care providers, 
+including dentists and hygienists, alongside crucial demographic data, 
+such as rural census tracts and Health Professional Shortage Area (HPSA) Facilities. 
+Interact with the filters to customize your view, selecting specific provider types and years. 
+Once you've refined your data selection, simply click "Update Map" to 
+regenerate the map with your chosen parameters.''')
+
+    with col4:
+        st.subheader('HPSA Facilities (Health Professional Shortage Area Facilities):')
+        st.write('''HPSA facilities are designated healthcare facilities located in areas 
+                    identified as Health Professional Shortage Areas (HPSAs). 
+                    These facilities on the map are designated Dental HPSA Facilities. 
+                    The designation is made by the Health Resources and Services Administration (HRSA) 
+                    based on various factors, including population-to-provider ratios, socioeconomic status, 
+                    and health outcomes.''')
+        st.subheader('Rural Census Tract Centroids')
+        st.write('''Rural census tract centroids refer to the geographical center points of rural census tracts. 
+                    Census tracts are small statistical subdivisions of counties or equivalent entities used for data 
+                    collection and analysis by the United States Census Bureau. Rural census tracts are those designated 
+                    as having 100% of their population living in rural areas.''')
 
 with st.container():
     col1, col2 = st.columns(spec=[0.4, 0.6])
@@ -132,11 +157,11 @@ with st.container():
             st.session_state.p_type = st.multiselect('Provider Type',
                                                      cleaned_providers['Licence Type'].unique(),
                                                      st.session_state.p_type)
-            st.session_state.year = st.multiselect('Year', cleaned_providers.Year.unique(), st.session_state.year)
+            st.session_state.year = st.multiselect('Year', cleaned_providers.Year.unique(), '2024')
             rural_check = st.checkbox("Check here to see rural census tract Centroids:", value=False)
             hpsa_check = st.checkbox("Check here to see HPSA Facilities:", value=False)
             st.form_submit_button(label='Update Dataframe')
-        st.subheader('Basic Stats:')
+        st.subheader('Provider Statistics:')
         filter_map = {'Licence Type': st.session_state['p_type'],
                       "Year": st.session_state['year']}
         pd.set_option('display.max_colwidth', 40)  # Set maximum column width
@@ -145,21 +170,57 @@ with st.container():
         prov_stats = create_provider_stats(filtered_providers)
         st.dataframe(prov_stats.transpose())
 
+        st.markdown("""#### Hygienist-Dentist Disparity:
+With more hygienists than dentists present statewide, there's an indication 
+that hygienists could take on a more prominent role in addressing the needs of underserved populations.
+#### Hygienist Proximity to Rural Areas:
+Hygienists tend to be situated closer to rural 
+regions compared to dentists, suggesting their pivotal role in addressing oral 
+health needs in underserved abd rural communities.
+
+#### Dentist Proximity to HPSA Facilities:
+
+While dentists are predominantly situated closer to Health Professional 
+Shortage Area (HPSA) Facilities, these locations still face significant underservice. 
+This prompts the crucial question: how can dentists be incentivized to provide care in these underserved facilities""")
+
 
     with col2:
         fig, ax = plt.subplots(figsize=(10, 8))
-        tracts.plot(ax=ax, legend=True, color='lightblue')
-        for license_type, color in zip(['DEN', 'DHY'], ['red', 'blue']):  # Specify your license types here
+        tracts.plot(ax=ax, legend=True, color='lightgrey')
+        for license_type, color in zip(['Dentist', 'Hygienist'], ['red', 'blue']):  # Specify your license types here
             subset = filtered_providers[filtered_providers['Licence Type'] == license_type]
             if not subset.empty:
                 subset.plot(ax=ax, color=color, markersize=3, label=license_type, alpha=0.4)
+
         # Plot HPSA facilities if checked
         if hpsa_check:
-            hpsa.plot(ax=ax, color='green', markersize=5)
+            hpsa.plot(ax=ax, color='black', marker='s',  markersize=10)
+            hpsa_legend = Line2D([0], [0], marker='s', color='w',
+                                 markerfacecolor='black', markersize=7, label='HPSA Facilities')
         if rural_check:
-            rural_tract_cen.plot(ax=ax, color='pink', markersize=10)
-        ax.set_title('Census Tract Provider Counts')
+            rural_tract_cen.plot(ax=ax, color='green', marker='*', markersize=10)
+            rural_legend = Line2D([0], [0], marker='*', color='w',
+                                  markerfacecolor='green', markersize=10, label='Rural Tract Centroids')
+        ax.tick_params(axis='both', which='both', bottom=False, top=False, left=False, right=False)
+        ax.set_xticks([])  # Remove x-axis tick marks
+        ax.set_yticks([])  # Remove y-axis tick marks
+        handles, labels = ax.get_legend_handles_labels()
+        if hpsa_check:
+            handles.append(hpsa_legend)
+            labels.append('HPSA Facilities')
+        if rural_check:
+            handles.append(rural_legend)
+            labels.append('Rural Tract Centroids')
+        ax.legend(handles, labels, loc='upper right')
         st.pyplot(fig)
+
+        st.subheader('Key Insights')
+        st.write('''Attention is drawn to the stark shortage of healthcare providers across the northern 
+        and southeastern regions of the state. These areas face significant challenges in accessing 
+        essential medical services, including dental care. The scarcity of providers underscores the 
+        urgent need for targeted interventions to address healthcare disparities and ensure equitable 
+        access to quality care for all residents.''')
 
 with st.container():
     col1, col2 = st.columns(spec=[0.5, 0.5])
@@ -182,3 +243,5 @@ with st.container():
         stats_dict_2 = run_ranksums_statistics(array_dict[keys[0]], array_dict[keys[1]])
         st.write(stats_dict_2)
 
+st.sidebar.markdown("""Click through the pages in the sidebar above to view different 
+                    parts of the dental provider analysis. """)

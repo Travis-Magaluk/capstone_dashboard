@@ -5,7 +5,7 @@ import folium
 from streamlit_folium import folium_static
 import plotly.express as px
 import json
-
+st.set_page_config(layout="wide")
 st.title("Census Tracts by Need Level")
 st.header("Explore the need in 2022 vs. Projected Need in 2030.")
 
@@ -84,9 +84,6 @@ with st.container():
                                  options=['2022', '2030'])
             tooltip = st.checkbox("Check here for tooltip:", value=False)
             st.form_submit_button(label='Update Map')
-
-        st.write(need_year)
-        st.write(tooltip)
 
     with col2:
         if need_year == '2022':
