@@ -1,7 +1,8 @@
 import streamlit as st
 st.set_page_config(layout="wide")
 
-st.title("Rural Access to Dental Services")
+st.title("Access to Dental Care")
+st.header('An Exploration of Dental Care in Missouri')
 st.markdown("#")
 
 overview = """
@@ -47,8 +48,7 @@ where access to care is limited, with over 40% of the state's population residin
 
 The repercussions of poor dental health extend far beyond mere discomfort. 
 Untreated cavities, gum disease, and oral infections can lead to systemic health issues such as 
-diabetes, heart disease, and even oral cancer. The economic burden is equally significant, 
-with preventable dental conditions accounting for countless missed workdays and billions in lost productivity annually.
+diabetes, heart disease, and even oral cancer.
 
 ##### Voices from the Heartland
 
@@ -110,8 +110,9 @@ with st.container():
 
     st.write("\n\n\n")
 
-with st.container():
-    st.header("How to use this dashboard")
 
+st.sidebar.header('How to use this dashboard:')
 st.sidebar.markdown("""Click through the pages in the sidebar above to view different 
-                    parts of the dental provider analysis. """)
+                    parts of the dental provider analysis.
+                    Each page focuses on answering different a question about 
+                    dental providers in the state of missouri. """)
