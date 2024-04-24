@@ -1,4 +1,32 @@
 import streamlit as st
+
+st.set_page_config(layout="wide")
+
+st.title("Provider Locations Across Missouri")
+
+with st.container():
+    col3, col4, col5 = st.columns(spec=[0.45, .1, 0.45])
+
+    with col3:
+        st.subheader('Locating Providers and Health Resources in Missouri')
+        st.write('''Understanding current dental provider locations is crucial to understanding which areas
+        lack dental providers and which areas have an over abundance of providers. The definitions to the right
+        define other information that can be displayed on the map.''')
+
+    with col5:
+        st.subheader('HPSA Facilities (Health Professional Shortage Area Facilities):')
+        st.write('''HPSA facilities are designated healthcare facilities located in areas 
+                    identified as Health Professional Shortage Areas (HPSAs). 
+                    These facilities on the map are designated Dental HPSA Facilities. 
+                    The designation is made by the Health Resources and Services Administration (HRSA) 
+                    based on various factors, including population-to-provider ratios, socioeconomic status, 
+                    and health outcomes.''')
+        st.subheader('Rural Census Tract Centroids')
+        st.write('''Rural census tract centroids refer to the geographical center points of rural census tracts. 
+                    Census tracts are small statistical subdivisions of counties or equivalent entities used for data 
+                    collection and analysis by the United States Census Bureau. Rural census tracts are those designated 
+                    as having 100% of their population living in rural areas.''')
+
 import pandas as pd
 import os
 import geopandas as gpd
@@ -6,7 +34,7 @@ import matplotlib.pyplot as plt
 import scipy.stats as stats
 import numpy as np
 from scipy.stats import gaussian_kde
-st.set_page_config(layout="wide")
+
 from matplotlib.lines import Line2D
 
 
@@ -76,7 +104,9 @@ def create_provider_stats(df):
         Avg_Distance_to_Nearest_HPSA_Facility=('Distance to Nearest HPSA Facility', 'mean')
         # Calculating the average distance to nearest HPSA facility
     )
-
+    grouped_df.rename(mapper={'Avg_Distance_to_Nearest_Rural': 'Nearest Rural Average',
+                              'Avg_Distance_to_Nearest_HPSA_Facility': 'Nearest HPSA Average'},
+                      axis=1, inplace=True)
     # Resetting index
     grouped_df.reset_index(inplace=True)
 
@@ -109,6 +139,9 @@ def run_ranksums_statistics(dist1, dist2):
     return stats_dict
 
 
+
+
+
 providers = read_file('data/all_providers/all_providers.shp')
 tracts = read_file('data/tracts/tracts.shp')
 hpsa = read_file('data/hpsa_facility/hpsa_facilities.shp')
@@ -119,35 +152,6 @@ cleaned_providers = clean_providers(providers)
 if 'p_type' not in st.session_state:
     st.session_state['p_type'] = cleaned_providers['Licence Type'].unique()
     st.session_state.year = cleaned_providers.Year.unique()
-
-
-st.title("Provider Locations Across Missouri")
-
-with st.container():
-    col3, col4 = st.columns(spec=[0.5, 0.5])
-
-    with col3:
-        st.subheader('Navigating Provider Locations and Health Resources in Missouri')
-        st.write('''Explore the geographic distribution of dental care providers, 
-including dentists and hygienists, alongside crucial demographic data, 
-such as rural census tracts and Health Professional Shortage Area (HPSA) Facilities. 
-Interact with the filters to customize your view, selecting specific provider types and years. 
-Once you've refined your data selection, simply click "Update Map" to 
-regenerate the map with your chosen parameters.''')
-
-    with col4:
-        st.subheader('HPSA Facilities (Health Professional Shortage Area Facilities):')
-        st.write('''HPSA facilities are designated healthcare facilities located in areas 
-                    identified as Health Professional Shortage Areas (HPSAs). 
-                    These facilities on the map are designated Dental HPSA Facilities. 
-                    The designation is made by the Health Resources and Services Administration (HRSA) 
-                    based on various factors, including population-to-provider ratios, socioeconomic status, 
-                    and health outcomes.''')
-        st.subheader('Rural Census Tract Centroids')
-        st.write('''Rural census tract centroids refer to the geographical center points of rural census tracts. 
-                    Census tracts are small statistical subdivisions of counties or equivalent entities used for data 
-                    collection and analysis by the United States Census Bureau. Rural census tracts are those designated 
-                    as having 100% of their population living in rural areas.''')
 
 with st.container():
     col1, col2 = st.columns(spec=[0.4, 0.6])
@@ -160,7 +164,7 @@ with st.container():
             st.session_state.year = st.multiselect('Year', cleaned_providers.Year.unique(), '2024')
             rural_check = st.checkbox("Check here to see rural census tract Centroids:", value=False)
             hpsa_check = st.checkbox("Check here to see HPSA Facilities:", value=False)
-            st.form_submit_button(label='Update Dataframe')
+            st.form_submit_button(label='Update Map')
         st.subheader('Provider Statistics:')
         filter_map = {'Licence Type': st.session_state['p_type'],
                       "Year": st.session_state['year']}
@@ -168,6 +172,8 @@ with st.container():
         # pd.set_option('display.header_wrap', True)  # Allow header text to wrap
         filtered_providers = filter_df_selections(cleaned_providers, filter_map)
         prov_stats = create_provider_stats(filtered_providers)
+        prov_stats = prov_stats.round(2)
+        prov_stats = prov_stats.astype(str)
         st.dataframe(prov_stats.transpose())
 
         st.markdown("""#### Hygienist-Dentist Disparity:
@@ -243,5 +249,10 @@ with st.container():
         stats_dict_2 = run_ranksums_statistics(array_dict[keys[0]], array_dict[keys[1]])
         st.write(stats_dict_2)
 
-st.sidebar.markdown("""Click through the pages in the sidebar above to view different 
-                    parts of the dental provider analysis. """)
+st.sidebar.header("Navigation:")
+st.sidebar.markdown("""Explore the geographic distribution of dental care providers, 
+including dentists and hygienists, alongside crucial demographic data, 
+such as rural census tracts and Health Professional Shortage Area (HPSA) Facilities. 
+Interact with the filters to customize your view, selecting specific provider types and years. 
+Once you've refined your data selection, simply click "Update Map" to 
+regenerate the map with your chosen parameters.""")
