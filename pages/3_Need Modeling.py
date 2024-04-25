@@ -14,6 +14,13 @@ st.subheader("The images below showcase current dental provider need in 2022, "
              "In the change of need, negative values indicate that there is a decreasing need, "
              "whereas positive numbers indicate an increasing need from 2022 to 2030.")
 
+st.sidebar.header("Navigation:")
+st.sidebar.markdown("""Zoom in and out of the map with you mouse to see the need level for dental providers
+in various census tracts. Click and drag the map to pan. \n 
+Toggle between actual need in 2022, predicted need in 2030, or see the 'Change' in 
+need from 2022 to 2030. \n 
+Click the tooltip checkbox to see hover over information for each census tract. \n
+Click the 'X' in the navigation bar top right to make more room to explore the visualizations. """)
 
 @st.cache_data
 def read_file(filepath):
@@ -100,10 +107,10 @@ with st.container():
 
             st.subheader("Key")
             if need_year == '2022' or need_year == '2030':
-                st.write('For 2022 and 2030: Lighter areas = No to Low need. Darker Areas indicate High to Severe Need.')
+                st.write('Lighter areas indicate no to low need. Darker areas indicate high to severe need.')
             else:
-                st.write('For Change: Lighter areas mean that the need is Decreasing. '
-                     'Darker Areas mean that the need is increasing.')
+                st.write("""Lighter areas mean that the need is Decreasing.
+                        Darker Areas mean that the need is increasing.""")
 
     with col2:
         if need_year == '2022':
@@ -122,10 +129,3 @@ st.write('It was found that many severe census tracts tend to be concentrated in
          'majority racial minority census tracts. Hovering over each census tract will '
          'provide detail on the % minority illustrating this finding. ')
 
-st.sidebar.header("Navigation:")
-st.sidebar.markdown("""Zoom in and out of the map with you mouse to see the need level for dental providers
-in various census tracts. Click and drag the map to pan. \n 
-Toggle between actual need in 2022, predicted need in 2030, or see the 'Change' in 
-need from 2022 to 2030. \n 
-Click the tooltip checkbox to see hover over information for each census tract. \n
-Click the 'X' in the navigation bar top right to make more room to explore the visualizations. """)

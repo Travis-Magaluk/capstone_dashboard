@@ -49,12 +49,12 @@ def clean_providers(df):
                  'lic_exp_da', 'rural_hubd', 'hubdist', 'geometry']
     f_df = df.filter(items=cols_keep, axis=1)
     map_rename = {'id': 'id', 'ba_city': 'City', 'ba_state': 'State', 'ba_cnty': 'County',
-                  'lic_profes': "Licence Type", 'lic_number': 'Licence Number',
+                  'lic_profes': "License Type", 'lic_number': 'License Number',
                   'lic_exp_da': 'exp_date', 'rural_hubd': "Distance to Nearest Rural Hub",
                   'hubdist': 'Distance to Nearest HPSA Facility', 'geometry': 'geometry'}
 
     f_df.rename(mapper=map_rename, inplace=True, axis=1)
-    f_df['Licence Type'] = f_df['Licence Type'].replace({'DEN': 'Dentist', 'DHY': 'Hygienist'})
+    f_df['License Type'] = f_df['License Type'].replace({'DEN': 'Dentist', 'DHY': 'Hygienist'})
     f_df['exp_date'] = pd.to_datetime(f_df['exp_date'])
     f_df['Year'] = pd.DatetimeIndex(f_df['exp_date']).year.astype(str)
     return f_df
@@ -91,13 +91,13 @@ def create_density_plt(_df, hue, x, fill_alpha=0.3):
     ax.legend()
     ax.set_xlabel(x)
     ax.set_ylabel('Density')
-    ax.set_title('Smoothed Density Plot with Fill by ' + hue)
+    ax.set_title('Distribution of ' + x + ' by ' + hue)
 
     return fig
 
 
 def create_provider_stats(df):
-    grouped_df = df.groupby(['Licence Type']).agg(
+    grouped_df = df.groupby(['License Type']).agg(
         Count=('id', 'count'),  # Counting the number of rows in each group
         Avg_Distance_to_Nearest_Rural=('Distance to Nearest Rural Hub', 'mean'),
         # Calculating the average distance to nearest rural hub
@@ -138,7 +138,13 @@ def run_ranksums_statistics(dist1, dist2):
             'Message'] = "Fail to reject the null hypothesis: There is no significant difference between the distributions."
     return stats_dict
 
-
+st.sidebar.header("Navigation:")
+st.sidebar.markdown("""Explore the geographic distribution of dental care providers, 
+including dentists and hygienists, alongside crucial demographic data, 
+such as rural census tracts and Health Professional Shortage Area (HPSA) Facilities. 
+Interact with the filters to customize your view, selecting specific provider types and years. 
+Once you've refined your data selection, simply click "Update Map" to 
+regenerate the map with your chosen parameters.""")
 
 
 
@@ -150,7 +156,7 @@ rural_tract_cen = read_file('data/rural_tract_pts/rural_tract_pts.shp')
 cleaned_providers = clean_providers(providers)
 
 if 'p_type' not in st.session_state:
-    st.session_state['p_type'] = cleaned_providers['Licence Type'].unique()
+    st.session_state['p_type'] = cleaned_providers['License Type'].unique()
     st.session_state.year = cleaned_providers.Year.unique()
 
 with st.container():
@@ -159,14 +165,14 @@ with st.container():
     with col1:
         with st.form(key='map_params'):
             st.session_state.p_type = st.multiselect('Provider Type',
-                                                     cleaned_providers['Licence Type'].unique(),
+                                                     cleaned_providers['License Type'].unique(),
                                                      st.session_state.p_type)
             st.session_state.year = st.multiselect('Year', cleaned_providers.Year.unique(), '2024')
             rural_check = st.checkbox("Check here to see rural census tract Centroids:", value=False)
             hpsa_check = st.checkbox("Check here to see HPSA Facilities:", value=False)
             st.form_submit_button(label='Update Map')
         st.subheader('Provider Statistics:')
-        filter_map = {'Licence Type': st.session_state['p_type'],
+        filter_map = {'License Type': st.session_state['p_type'],
                       "Year": st.session_state['year']}
         pd.set_option('display.max_colwidth', 40)  # Set maximum column width
         # pd.set_option('display.header_wrap', True)  # Allow header text to wrap
@@ -188,14 +194,16 @@ health needs in underserved abd rural communities.
 
 While dentists are predominantly situated closer to Health Professional 
 Shortage Area (HPSA) Facilities, these locations still face significant underservice. 
-This prompts the crucial question: how can dentists be incentivized to provide care in these underserved facilities""")
+This prompts the crucial question: how can dentists be incentivized to provide care in these underserved facilities?
+One solution is to partner with Community Based Organizations to fill the gaps. Visit the Conclusions 
+page for more information on this topic.""")
 
 
     with col2:
         fig, ax = plt.subplots(figsize=(10, 8))
         tracts.plot(ax=ax, legend=True, color='lightgrey')
         for license_type, color in zip(['Dentist', 'Hygienist'], ['red', 'blue']):  # Specify your license types here
-            subset = filtered_providers[filtered_providers['Licence Type'] == license_type]
+            subset = filtered_providers[filtered_providers['License Type'] == license_type]
             if not subset.empty:
                 subset.plot(ax=ax, color=color, markersize=3, label=license_type, alpha=0.4)
 
@@ -232,27 +240,20 @@ with st.container():
     col1, col2 = st.columns(spec=[0.5, 0.5])
 
     with col1:
-        fig1 = create_density_plt(filtered_providers, 'Licence Type', 'Distance to Nearest Rural Hub', fill_alpha=0.3)
+        fig1 = create_density_plt(filtered_providers, 'License Type', 'Distance to Nearest Rural Hub', fill_alpha=0.3)
         st.pyplot(fig1)
         try:
-            array_dict = get_arrays(filtered_providers, 'Licence Type', 'Distance to Nearest Rural Hub')
+            array_dict = get_arrays(filtered_providers, 'License Type', 'Distance to Nearest Rural Hub')
             keys = list(array_dict.keys())[:2]
             stats_dict_1 = run_ranksums_statistics(array_dict[keys[0]], array_dict[keys[1]])
             st.write(stats_dict_1)
         except IndexError:
             pass
     with col2:
-        fig2 = create_density_plt(filtered_providers, 'Licence Type', 'Distance to Nearest HPSA Facility', fill_alpha=0.3)
+        fig2 = create_density_plt(filtered_providers, 'License Type', 'Distance to Nearest HPSA Facility', fill_alpha=0.3)
         st.pyplot(fig2)
-        array_dict = get_arrays(filtered_providers, 'Licence Type', 'Distance to Nearest HPSA Facility')
+        array_dict = get_arrays(filtered_providers, 'License Type', 'Distance to Nearest HPSA Facility')
         keys = list(array_dict.keys())[:2]
         stats_dict_2 = run_ranksums_statistics(array_dict[keys[0]], array_dict[keys[1]])
         st.write(stats_dict_2)
 
-st.sidebar.header("Navigation:")
-st.sidebar.markdown("""Explore the geographic distribution of dental care providers, 
-including dentists and hygienists, alongside crucial demographic data, 
-such as rural census tracts and Health Professional Shortage Area (HPSA) Facilities. 
-Interact with the filters to customize your view, selecting specific provider types and years. 
-Once you've refined your data selection, simply click "Update Map" to 
-regenerate the map with your chosen parameters.""")
