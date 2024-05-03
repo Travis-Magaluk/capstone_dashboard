@@ -7,7 +7,7 @@ st.markdown("#")
 
 overview = """
 Our dashboard presents an analysis spanning from 2010 to 2024, focusing on provider data of dentists 
-and hygienists in Missouri. Through meticulous examination, we've outlined their 
+and dental hygienists in Missouri. Through meticulous examination, we've outlined their 
 geographical distribution and their proximity to rural areas.
 
 This culmination of analytical work aims to facilitate future 
@@ -18,7 +18,7 @@ dispersed throughout the state. These shortages have profound implications, lead
 prevalent issues such as cavities, periodontal diseases, and their consequential impacts on 
 systemic health, including diabetes, heart disease, and oral cancer.
 
-Through our dashboard, we strive to provide a clear understanding of these challenges, 
+With this dashboard, we strive to provide a clear understanding of these barriers, 
 highlighting the importance of addressing provider shortages for 
 better healthcare access and improved public health outcomes.
 
@@ -36,10 +36,10 @@ where access to quality dental care remains a persistent challenge for many resi
 ##### Statistics Speak Louder than Words
 
 - According to the Missouri Department of Health and Senior Services, approximately 45% of 
-Missourians lack dental insurance, making it one of the highest uninsured rates in the nation.
+Missourians lack dental insurance, one of the highest uninsured rates in the nation.
 
 - The shortage of dental providers in Missouri disproportionately affects rural areas, 
-where access to care is limited, with over 40% of the state's population residing in these underserved regions.
+where over 40% of the state’s population resides. Access to dental care is limited. 
 
 - Alarmingly, over 25% of Missouri's adults report that they have not visited a
  dentist within the past year, citing cost as the primary barrier.
@@ -47,17 +47,17 @@ where access to care is limited, with over 40% of the state's population residin
 ##### The Hidden Costs of Neglected Oral Health
 
 The repercussions of poor dental health extend far beyond mere discomfort. 
-Untreated cavities, gum disease, and oral infections can lead to systemic health issues such as 
+Untreated cavities, gum disease, and oral infections can lead to health issues such as 
 diabetes, heart disease, and even oral cancer.
 
 ##### Voices from the Heartland
 
-- "Forty-two percent of our patients are driving from outside the Columbia area to get work done, 
-because they don't have the dental care that they need provided in the smaller cities 
-that they are from," Parrott, who owns Aspen Dental in Columbia and Jefferson City
+> ***"Forty-two percent of our patients are driving from outside the Columbia area to get work done, 
+> because they don't have the dental care that they need provided in the smaller cities 
+> that they are from," Parrott, who owns Aspen Dental in Columbia and Jefferson City***
 
-- "Taking the time off of work to have to drive further away because we don't 
-have enough dentists in the area to accommodate everyone's needs," Vandelicht, Missouri Resident
+> ***"Taking the time off of work to have to drive further away because we don't 
+> have enough dentists in the area to accommodate everyone's needs," Vandelicht, Missouri Resident***
 
 ##### Shedding Light on the Path Forward
 
@@ -77,7 +77,7 @@ Executives can leverage this data to strategize expansion plans and target under
 Dental Schools benefit from access to educational materials tailored to their curriculum, 
 providing students and faculty with crucial information on areas where providers are most needed. 
 This empowers future dental professionals with insights that align with community health needs, 
-fostering a sense of responsibility towards serving underserved populations.
+fostering a sense of responsibility to work with underserved populations.
 
 ##### Current Dental Health Providers
 Current Dental Health Providers are encouraged to consider providing care in rural and high-need areas. 
