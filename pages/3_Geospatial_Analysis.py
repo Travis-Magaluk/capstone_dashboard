@@ -152,5 +152,5 @@ with tab2:
         with col6:
             st.subheader('I think we should have a big picture so what for our stakeholders here! Or at the bottom')
 with tab3:
-    st.image('images/img3.png')
+    st.write('More to come here')
 
