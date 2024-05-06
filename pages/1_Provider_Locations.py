@@ -132,10 +132,11 @@ def run_ranksums_statistics(dist1, dist2):
     # Interpret the results
     if p_value < 0.05:
         stats_dict[
-            'Message'] = "Reject the null hypothesis: There is a significant difference between the distributions."
+            'Message'] = "There is a significant difference between the distributions."
     else:
         stats_dict[
-            'Message'] = "Fail to reject the null hypothesis: There is no significant difference between the distributions."
+            'Message'] = "Fail to reject the null hypothesis: " \
+                         "There is no significant difference between the distributions."
     return stats_dict
 
 st.sidebar.header("Navigation:")
@@ -246,7 +247,7 @@ with st.container():
             array_dict = get_arrays(filtered_providers, 'License Type', 'Distance to Nearest Rural Hub')
             keys = list(array_dict.keys())[:2]
             stats_dict_1 = run_ranksums_statistics(array_dict[keys[0]], array_dict[keys[1]])
-            st.write(stats_dict_1)
+            st.subheader(stats_dict_1['Message'])
         except IndexError:
             pass
     with col2:
@@ -255,5 +256,5 @@ with st.container():
         array_dict = get_arrays(filtered_providers, 'License Type', 'Distance to Nearest HPSA Facility')
         keys = list(array_dict.keys())[:2]
         stats_dict_2 = run_ranksums_statistics(array_dict[keys[0]], array_dict[keys[1]])
-        st.write(stats_dict_2)
+        st.subheader(stats_dict_2['Message'])
 
