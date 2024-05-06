@@ -7,7 +7,7 @@ st.set_page_config(layout="wide")
 st.title("Census Tracts by Need Level")
 st.subheader("The images below showcase current dental provider need in 2022, "
              "future predicted need in 2030, or the change in need from 2022 to 2030. "
-             "Need is scaled from 1, being no need, to 5, being severe need."
+             "Need is scaled from 1, being no need, to 5, being severe need. "
              "In the change of need, negative values indicate that there is a decreasing need, "
              "whereas positive numbers indicate an increasing need from 2022 to 2030.")
 
@@ -122,7 +122,7 @@ with st.container():
             folium_static(m)
 
 st.subheader('Key Findings')
-st.write('It was found that many severe census tracts tend to be concentrated in '
-         'majority racial minority census tracts. Hovering over each census tract will '
-         'provide detail on the % minority illustrating this finding. ')
-
+st.markdown("""
+##### Many severe census tracts tend to be concentrated in majority racial minority census tracts.
+##### Hovering over each census tract will provide detail on the % minority illustrating this finding.
+""")

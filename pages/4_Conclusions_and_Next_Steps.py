@@ -6,7 +6,7 @@ st.title("Conclusions and Next Steps")
 
 key_findings = """
 
-Areas with **high** minority populations are predicted to be **more likely** to have severe dental need. 
+Areas with **high minority populations** are predicted to be **more likely to have severe dental need**. 
 Controlling for differences in population does not relieve this concern. 
 
 Dental hygienists locate significantly closer to rural areas than dentists do. 

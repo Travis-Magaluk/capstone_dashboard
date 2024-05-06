@@ -3,6 +3,12 @@ import streamlit as st
 st.set_page_config(layout="wide")
 
 st.title('Geospatial Analysis')
+st.sidebar.header("Navigation:")
+st.sidebar.markdown("""Look around at the results of the geospatial analysis. 
+
+Click on the tabs under the opening text to explore different aspects of the geospatial analysis.""")
+
+
 
 opening_text = """
 #### Geospatial Analysis Overview and Terms
@@ -26,7 +32,8 @@ MGWR tests for the local fit of Census predictors at a variable scale (optimized
 
 st.markdown(opening_text)
 
-tab1, tab2, tab3 = st.tabs(["Missouri - Providers per 4k", "Missouri - Distance Based", "Kansas City"])
+tab1, tab2, tab3, tab4 = st.tabs(["Missouri - Providers per 4k", "Missouri - Distance Based", "Kansas City",
+                                  'St. Louis'])
 
 with tab1:
     st.markdown('''
@@ -152,5 +159,81 @@ with tab2:
         with col6:
             st.subheader('I think we should have a big picture so what for our stakeholders here! Or at the bottom')
 with tab3:
-    st.write('More to come here')
+    st.markdown('''
+    ### Geospatial Analysis in Kansas City Metro
 
+    Understanding the state as a whole is important, but anomalies were also noticed in metropolitan areas and an 
+    investigation took place further exploring the major metro areas.
+    
+    The circled area in the following maps shows a corridor in Kansas City, Missouri, bounded east and west by Highway 
+    71 and Interstate 435 and bounded north and south by the East Side community and the Hickman Mills district.''')
+    col7, col8 = st.columns(spec=[0.5, 0.5])
+    with col7:
+        st.subheader('Longer Commute Distance')
+        st.image('images/GeoAnalysis/tab3_img1.png')
+        st.subheader('Lower Cost of Living')
+        st.image('images/GeoAnalysis/tab3_img3.png')
+    with col8:
+        st.subheader('Higher Uninsured')
+        st.image('images/GeoAnalysis/tab3_img2.png')
+
+        st.markdown("""
+        #### Takeaways
+
+        - The circled zone in the top-left map shows where prospective dental patients within the KC metro drive 
+        farther to their nearest dentist than do those living in the light green areas.
+        - The highlighted zone in the top-right map shows a cluster of tracts where the population is more likely to be 
+        without health insurance. 
+        - The blue cluster highlighted in the bottom-left map shows that this same group of KC citizens live in poorer 
+        neighborhoods within the metro. 
+        
+        - **Even in metro areas, people who live in low-income neighborhoods without 
+        insurance must drive farther to receive dental care.**
+        """)
+
+with tab4:
+    st.markdown('''
+    ### Geospatial Analysis in Kansas City Metro
+
+    Understanding the state as a whole is important, but anomalies were also noticed in metropolitan areas and an 
+    investigation took place further exploring the major metro areas.
+
+    The circled area shows a corridor in Saint Louis, Missouri that contains neighborhoods such as Black Jack, 
+    Spanish Lake, Ferguson, & Country Club Hills.''')
+    col9, col10 = st.columns(spec=[0.5, 0.5])
+    with col9:
+        st.subheader('Longer Commute Distance')
+        st.image('images/GeoAnalysis/tab4_img1.png')
+        st.subheader('Lower Annual Income')
+        st.image('images/GeoAnalysis/tab4_img3.png')
+    with col10:
+        st.subheader('Higher Uninsured')
+        st.image('images/GeoAnalysis/tab4_img2.png')
+
+        st.markdown("""
+        #### Takeaways
+        - The circled zone in the top-left map shows where prospective dental patients within the St. Louis metro drive 
+        farther to their nearest dentist than do those living in the light green areas.
+        - The circled zone in the top-right map shows a cluster of tracts where the population is more likely to be 
+        without health insurance. 
+        - The dark blue cluster highlighted in the bottom-left map shows that this same group of St. Louis citizens 
+        are living in poorer neighborhoods within the metro. 
+        
+        - **Even in metro areas, people who live in low-income neighborhoods without insurance must drive 
+        farther to receive dental care.**
+        """)
+
+st.markdown("""
+
+### Wrapping it Up
+
+#### Consumers driving farther to access dental care: 
+- Lower median monthly income
+- More likely uninsured
+- Commute more than 44 minutes to work/shopping
+- More likely to live in a rural/small town
+#### Consumers with shorter distance to dental care:
+- Higher monthly household costs (more affluent)
+- Greater tract-level household density (dense population)
+
+""")
