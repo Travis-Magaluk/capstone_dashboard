@@ -5,14 +5,14 @@ from streamlit_folium import folium_static
 
 st.set_page_config(layout="wide")
 st.title("Census Tracts by Need Level")
-st.subheader("The images below showcase current dental provider need in 2022, "
+st.subheader("The map below showcases the current dental provider need in 2022, "
              "future predicted need in 2030, or the change in need from 2022 to 2030. "
              "Need is scaled from 1, being no need, to 5, being severe need. "
-             "In the change of need, negative values indicate that there is a decreasing need, "
-             "whereas positive numbers indicate an increasing need from 2022 to 2030.")
+             "In the change of need, negative values indicate that there is a decreasing severity of need, "
+             "whereas positive numbers indicate an increasing severity of need from 2022 to 2030.")
 
 st.sidebar.header("Navigation:")
-st.sidebar.markdown("""Zoom in and out of the map with you mouse to see the need level for dental providers
+st.sidebar.markdown("""Zoom in and out of the map with your mouse to see the need level for dental providers
 in various census tracts. Click and drag the map to pan. \n 
 Toggle between actual need in 2022, predicted need in 2030, or see the 'Change' in 
 need from 2022 to 2030. \n 

@@ -6,7 +6,7 @@ st.header('An Exploration of Dental Care in Missouri')
 st.markdown("#")
 
 overview = """
-Our dashboard presents an analysis spanning from 2010 to 2024, focusing on provider data of dentists 
+Our dashboard presents an analysis spanning from 2010 to 2022, focusing on provider data of dentists 
 and dental hygienists in Missouri. Through meticulous examination, we've outlined their 
 geographical distribution and their proximity to rural areas.
 
@@ -85,10 +85,11 @@ Our dashboard acts as a catalyst for change, motivating providers to explore opp
 are most urgently required, thus bridging gaps in access to dental care.
 
 ##### Policymakers
-Policymakers find support for informed decision-making regarding expanded licensure for dental hygienists 
-and incentives for providers to practice in underserved regions. Our data-driven approach equips policymakers 
-with evidence-based arguments to advocate for policies that address workforce shortages and promote 
-equitable access to dental care across communities.
+Policymakers receive support for making well-informed decisions concerning the broadening of licensure parameters 
+for dental hygienists and the implementation of incentives for practitioners in underserved areas. Our method, 
+grounded in rigorous data analysis, provides policymakers with robust, evidence-based justifications to champion 
+policies designed to alleviate workforce shortages and enhance equitable access to dental healthcare across various 
+communities.
 
 """
 

@@ -140,8 +140,6 @@ with tab2:
                         best describes the tract population using a uniform bandwidth (the same number of nearest 
                         neighbors for all variables). GWR shows that our predictors explain about 44% of the variance 
                         in the distance to the nearest dentist when geospatial relationships are taken into account.
-                        
-                        **What is the difference between the blue and grey. We should highlight for our audience** 
                         """)
     with st.container():
         col5, col6 = st.columns(spec=[0.5, 0.5])
@@ -153,11 +151,9 @@ with tab2:
             describes the tract population using a variable bandwidth (optimizing the number of nearest neighbors to 
             understand differential spatial effects for our predictors). MGWR shows that our predictors explain almost 
             60% of the variance in the distance to the nearest dentist when geospatial relationships are considered. 
-            
-            **What is the difference between the blue and grey. We should highlight for our audience**
             """)
         with col6:
-            st.subheader('I think we should have a big picture so what for our stakeholders here! Or at the bottom')
+            st.write('')
 with tab3:
     st.markdown('''
     ### Geospatial Analysis in Kansas City Metro

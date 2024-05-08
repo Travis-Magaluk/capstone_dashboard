@@ -189,7 +189,7 @@ that hygienists could take on a more prominent role in addressing the needs of u
 #### Hygienist Proximity to Rural Areas:
 Hygienists tend to be situated closer to rural 
 regions compared to dentists, suggesting their pivotal role in addressing oral 
-health needs in underserved abd rural communities.
+health needs in underserved and rural communities.
 
 #### Dentist Proximity to HPSA Facilities:
 
@@ -253,8 +253,11 @@ with st.container():
     with col2:
         fig2 = create_density_plt(filtered_providers, 'License Type', 'Distance to Nearest HPSA Facility', fill_alpha=0.3)
         st.pyplot(fig2)
-        array_dict = get_arrays(filtered_providers, 'License Type', 'Distance to Nearest HPSA Facility')
-        keys = list(array_dict.keys())[:2]
-        stats_dict_2 = run_ranksums_statistics(array_dict[keys[0]], array_dict[keys[1]])
-        st.subheader(stats_dict_2['Message'])
+        try:
+            array_dict = get_arrays(filtered_providers, 'License Type', 'Distance to Nearest HPSA Facility')
+            keys = list(array_dict.keys())[:2]
+            stats_dict_2 = run_ranksums_statistics(array_dict[keys[0]], array_dict[keys[1]])
+            st.subheader(stats_dict_2['Message'])
+        except IndexError:
+            pass
 
