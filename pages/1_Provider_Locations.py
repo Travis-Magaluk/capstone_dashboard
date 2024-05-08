@@ -243,21 +243,22 @@ with st.container():
     with col1:
         fig1 = create_density_plt(filtered_providers, 'License Type', 'Distance to Nearest Rural Hub', fill_alpha=0.3)
         st.pyplot(fig1)
-        try:
-            array_dict = get_arrays(filtered_providers, 'License Type', 'Distance to Nearest Rural Hub')
+        array_dict = get_arrays(filtered_providers, 'License Type', 'Distance to Nearest Rural Hub')
+        if len(array_dict) >= 2:
             keys = list(array_dict.keys())[:2]
             stats_dict_1 = run_ranksums_statistics(array_dict[keys[0]], array_dict[keys[1]])
             st.subheader(stats_dict_1['Message'])
-        except IndexError:
-            pass
+        else:
+            st.write("Cannot perform statics on mean difference as there is only one grouping.")
+
     with col2:
         fig2 = create_density_plt(filtered_providers, 'License Type', 'Distance to Nearest HPSA Facility', fill_alpha=0.3)
         st.pyplot(fig2)
-        try:
-            array_dict = get_arrays(filtered_providers, 'License Type', 'Distance to Nearest HPSA Facility')
+        array_dict = get_arrays(filtered_providers, 'License Type', 'Distance to Nearest HPSA Facility')
+        if len(array_dict) >= 2:
             keys = list(array_dict.keys())[:2]
             stats_dict_2 = run_ranksums_statistics(array_dict[keys[0]], array_dict[keys[1]])
             st.subheader(stats_dict_2['Message'])
-        except IndexError:
-            pass
+        else:
+            st.write("Cannot perform statics on mean difference as there is only one grouping.")
 
